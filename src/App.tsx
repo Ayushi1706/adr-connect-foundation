@@ -1,3 +1,13 @@
-import {Navigate,Route,Routes} from 'react-router-dom';import HomePage from './pages/HomePage';import AuthPage from './pages/AuthPage';import DashboardPage from './pages/DashboardPage';import {AuthProvider,useAuth} from './contexts/AuthContext';
-function Guard(){const {session,loading}=useAuth();if(loading)return <main className="shell">Checking sign-in…</main>;return session?<DashboardPage/>:<Navigate to="/login" replace/>}
-export default function App(){return <AuthProvider><Routes><Route path="/" element={<HomePage/>}/><Route path="/login" element={<AuthPage/>}/><Route path="/signup" element={<AuthPage signup/>}/><Route path="/dashboard" element={<Guard/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></AuthProvider>}
+import { Navigate, Route, Routes } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import DashboardPage from './pages/DashboardPage'
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
