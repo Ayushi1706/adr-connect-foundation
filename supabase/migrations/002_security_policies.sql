@@ -1,0 +1,26 @@
+alter table public.user_profiles enable row level security;
+alter table public.professional_profiles enable row level security;
+alter table public.capability_types enable row level security;
+alter table public.user_capabilities enable row level security;
+alter table public.institution_affiliations enable row level security;
+alter table public.matters enable row level security;
+alter table public.matter_memberships enable row level security;
+alter table public.roles enable row level security;
+alter table public.matter_member_roles enable row level security;
+alter table public.audit_events enable row level security;
+create policy "read own profile" on public.user_profiles for select to authenticated using(auth.uid()=id);
+create policy "update own profile" on public.user_profiles for update to authenticated using(auth.uid()=id) with check(auth.uid()=id);
+create policy "read own professional profile" on public.professional_profiles for select to authenticated using(auth.uid()=user_id);
+create policy "insert own professional profile" on public.professional_profiles for insert to authenticated with check(auth.uid()=user_id);
+create policy "update own professional profile" on public.professional_profiles for update to authenticated using(auth.uid()=user_id) with check(auth.uid()=user_id);
+create policy "read own capabilities" on public.user_capabilities for select to authenticated using(auth.uid()=user_id);
+create policy "insert own capabilities" on public.user_capabilities for insert to authenticated with check(auth.uid()=user_id);
+create policy "read own affiliations" on public.institution_affiliations for select to authenticated using(auth.uid()=user_id);
+create policy "insert own affiliations" on public.institution_affiliations for insert to authenticated with check(auth.uid()=user_id);
+create policy "read capability types" on public.capability_types for select to authenticated using(true);
+create policy "read role master" on public.roles for select to authenticated using(true);
+create policy "read matters through membership or creator" on public.matters for select to authenticated using(created_by=auth.uid() or exists(select 1 from public.matter_memberships mm where mm.matter_id=matters.id and mm.user_id=auth.uid() and mm.membership_status in('invited','active')));
+create policy "create own matters" on public.matters for insert to authenticated with check(created_by=auth.uid());
+create policy "read own memberships" on public.matter_memberships for select to authenticated using(user_id=auth.uid());
+create policy "read own matter roles" on public.matter_member_roles for select to authenticated using(exists(select 1 from public.matter_memberships mm where mm.id=matter_member_roles.membership_id and mm.user_id=auth.uid()));
+-- Audit events intentionally have no direct user write/read policy in this starter.
